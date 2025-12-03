@@ -3,7 +3,767 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Al Rahim Motors </title>
+    <title>Al Rahim Motors | Management System</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- THEME VARIABLES --- */
+        :root {
+            --bg-body: #09090b;
+            --bg-surface: #121215;
+            --bg-card: #1c1c21;
+            --primary: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --accent: #eab308;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --border: #2e2e33;
+            --success: #10b981;
+            --danger: #ef4444;
+            --share: #8b5cf6;
+            --radius: 16px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-body); color: var(--text-main); padding-bottom: 90px; overflow-x: hidden; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .grid-responsive { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+        
+        /* --- HEADER --- */
+        header {
+            background: rgba(9, 9, 11, 0.95); backdrop-filter: blur(12px);
+            position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); padding: 16px 0;
+        }
+        .brand { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; display:flex; align-items:center; gap:10px; }
+        .brand span { color: var(--primary); }
+        
+        /* PC Nav */
+        .pc-nav { display: none; gap: 25px; align-items: center; }
+        .pc-nav a { color: var(--text-muted); text-decoration: none; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.3s; }
+        .pc-nav a:hover, .pc-nav a.active { color: white; }
+        .pc-nav .btn-sell-pc { background: var(--primary); color: white; padding: 10px 24px; border-radius: 50px; }
+
+        /* --- DASHBOARD TOOLS --- */
+        .tools-section { margin-top: 20px; }
+        .section-label { font-size: 14px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .tools-scroll { display: flex; gap: 15px; overflow-x: auto; scrollbar-width: none; padding-bottom: 5px; }
+        .tools-scroll::-webkit-scrollbar { display: none; }
+
+        .tool-card {
+            min-width: 130px; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: 0.3s;
+        }
+        .tool-card:hover { border-color: var(--primary); background: var(--bg-surface); transform: translateY(-3px); }
+        .tool-icon { width: 45px; height: 45px; background: rgba(59, 130, 246, 0.1); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .tool-name { font-size: 12px; font-weight: 600; color: white; text-align: center; }
+
+        /* --- BRAND PILLS --- */
+        .brands-scroll { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: none; margin-top: 10px; }
+        .brands-scroll::-webkit-scrollbar { display: none; }
+        .brand-pill {
+            min-width: 85px; height: 90px; background: var(--bg-surface); border: 1px solid var(--border);
+            border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 8px; cursor: pointer; transition: 0.3s;
+        }
+        .brand-pill:hover { border-color: var(--primary); transform: translateY(-5px); }
+        .brand-logo { width: 35px; height: 35px; object-fit: contain; }
+
+        /* --- CAR CARDS --- */
+        .car-card {
+            background: var(--bg-card); border-radius: var(--radius); overflow: hidden;
+            border: 1px solid var(--border); transition: all 0.3s ease; position: relative; cursor: pointer;
+        }
+        .car-card:hover { transform: translateY(-5px); border-color: #3f3f46; }
+        .card-img-box { height: 200px; width: 100%; background: #000; overflow: hidden; position: relative; }
+        .card-img-box img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .car-card:hover .card-img-box img { transform: scale(1.05); }
+        .status-badge { position: absolute; top: 10px; left: 10px; padding: 5px 10px; background: rgba(0,0,0,0.7); color: white; border-radius: 6px; font-size: 10px; font-weight: bold; backdrop-filter: blur(4px); }
+        
+        .card-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; }
+        .btn-mini { width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .btn-edit { background: var(--primary); }
+        .btn-del { background: var(--danger); }
+
+        .card-content { padding: 15px; }
+        .price { font-size: 20px; font-weight: 800; color: white; }
+        .title { font-size: 15px; color: var(--text-muted); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .features { display: flex; gap: 10px; border-top: 1px solid var(--border); padding-top: 10px; font-size: 12px; color: #888; }
+        .features i { color: var(--primary); margin-right: 4px; }
+
+        /* --- MODALS --- */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 200; overflow-y: auto; padding: 0;
+            justify-content: center; align-items: flex-start;
+        }
+        .modal.active { display: flex; }
+        .modal-box {
+            background: var(--bg-body); width: 100%; min-height: 100vh; position: relative; animation: slideUp 0.3s ease;
+        }
+        @media (min-width: 768px) {
+            .modal { padding: 40px; align-items: center; }
+            .modal-box { width: 600px; min-height: auto; border-radius: 20px; border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; }
+            .detail-box { width: 900px; }
+            .admin-box-pc { width: 900px; }
+        }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .modal-header { padding: 20px; border-bottom: 1px solid var(--border); background: var(--bg-card); position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 18px; font-weight: 700; }
+        .close-btn { background: #333; border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; }
+
+        /* --- FORMS --- */
+        .form-content { padding: 25px; }
+        .input-group { margin-bottom: 18px; }
+        .lbl { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 13px; font-weight: 600; }
+        .inp { width: 100%; background: var(--bg-surface); border: 1px solid var(--border); padding: 14px; border-radius: 10px; color: white; font-size: 15px; color-scheme: dark; }
+        .inp:focus { border-color: var(--primary); outline: none; }
+        
+        .upload-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 15px; display: flex; gap: 10px; overflow-x: auto; background: var(--bg-surface); }
+        .upload-trigger { min-width: 80px; height: 80px; background: #222; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #666; cursor: pointer; border: 1px solid #333; }
+        .thumb-preview { min-width: 80px; height: 80px; border-radius: 8px; object-fit: cover; border:1px solid #444; position: relative; }
+        .btn-submit { width: 100%; padding: 16px; background: var(--primary); color: white; font-weight: 800; border: none; border-radius: 12px; font-size: 16px; cursor: pointer; }
+
+        /* --- RECORDS LIST --- */
+        .record-list { margin-top: 25px; border-top: 1px solid var(--border); padding-top: 20px; }
+        .no-records { color: #555; text-align: center; padding: 20px; }
+
+        .record-card {
+            background: var(--bg-card); padding: 16px; border-radius: 12px;
+            border: 1px solid var(--border); margin-bottom: 12px; position: relative;
+            transition: 0.2s;
+        }
+        .record-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+
+        .rec-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .rec-name { font-size: 16px; font-weight: 700; color: white; display: flex; align-items: center; gap: 8px; }
+        .rec-name i { color: var(--primary); font-size: 14px; }
+        
+        .rec-date-badge {
+            background: rgba(59, 130, 246, 0.1); color: var(--primary);
+            padding: 4px 10px; border-radius: 50px; font-size: 11px; font-weight: 600;
+            display: flex; align-items: center; gap: 5px;
+        }
+
+        .phone-link { 
+            font-size: 13px; color: var(--success); margin-bottom: 10px; 
+            display: flex; align-items: center; gap: 6px; text-decoration: none; 
+            font-weight: 600; transition: 0.2s; border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 5px 10px; border-radius: 6px; width: fit-content;
+        }
+        .phone-link:hover { background: rgba(16, 185, 129, 0.1); }
+
+        .rec-note-box {
+            background: var(--bg-surface); padding: 10px; border-radius: 8px;
+            font-size: 13px; color: #ccc; border-left: 3px solid var(--accent);
+            line-height: 1.5;
+        }
+        
+        .rec-delete {
+            position: absolute; bottom: 16px; right: 16px;
+            background: none; border: none; color: #555; cursor: pointer; font-size: 14px;
+            transition: 0.2s;
+        }
+        .rec-delete:hover { color: var(--danger); }
+
+        /* --- ADMIN STATS --- */
+        .admin-stats { display: flex; gap: 15px; margin-bottom: 20px; }
+        .stat-card { flex: 1; background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
+        .stat-val { font-size: 24px; font-weight: 800; color: white; }
+        .stat-lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .admin-table-row {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--bg-surface); padding: 10px; margin-bottom: 8px;
+            border-radius: 8px; border: 1px solid var(--border);
+        }
+        .admin-actions { display: flex; gap: 8px; }
+        .btn-admin { padding: 6px 12px; border-radius: 6px; font-size: 12px; border: none; cursor: pointer; color: white; }
+
+        /* --- DETAIL VIEW --- */
+        .gallery-container { height: 350px; background: #000; position: relative; }
+        .gal-img { width: 100%; height: 100%; object-fit: contain; display: none; }
+        .gal-img.active { display: block; }
+        .gal-nav { position: absolute; top: 50%; width: 100%; display: flex; justify-content: space-between; padding: 0 10px; transform: translateY(-50%); pointer-events: none; }
+        .gal-btn { pointer-events: auto; background: rgba(0,0,0,0.5); color: white; border: none; padding: 10px 15px; cursor: pointer; font-size: 20px; border-radius: 5px; }
+        
+        .dt-content { padding: 25px; }
+        .dt-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .dt-price { font-size: 28px; font-weight: 800; color: var(--primary); }
+        .dt-make { font-size: 22px; color: white; font-weight: 600; }
+        .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .spec-card { background: var(--bg-surface); padding: 15px; border-radius: 12px; border: 1px solid var(--border); }
+        .spec-lbl { font-size: 12px; color: #777; }
+        .spec-val { font-size: 15px; font-weight: 700; color: white; }
+        
+        .action-bar { position: sticky; bottom: 0; background: var(--bg-card); padding: 15px 25px; border-top: 1px solid var(--border); display: flex; gap: 15px; z-index: 50; }
+        .btn-contact { flex: 1; padding: 16px; border-radius: 12px; text-decoration: none; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px; border: none; cursor: pointer; font-size: 16px; }
+        .btn-contact.call { background: var(--success); color: white; }
+        .btn-contact.sms { background: var(--bg-surface); border: 1px solid var(--border); color: white; }
+        .btn-contact.share { background: var(--share); color: white; }
+
+        /* --- MOBILE NAV --- */
+        .mobile-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 75px; background: rgba(9, 9, 11, 0.95);
+            backdrop-filter: blur(10px); border-top: 1px solid var(--border); display: flex; justify-content: space-around;
+            align-items: center; z-index: 150; padding-bottom: 5px;
+        }
+        .nav-icon { background: none; border: none; color: #666; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .nav-icon.active { color: white; }
+        .nav-icon i { font-size: 22px; }
+        .nav-fab { width: 50px; height: 50px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; margin-top: -30px; border: 5px solid var(--bg-body); box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); }
+
+        @media (min-width: 768px) {
+            .mobile-nav { display: none; }
+            .pc-nav { display: flex; }
+            .container { padding: 0; }
+            .action-bar { position: static; background: transparent; border: none; padding: 0; }
+        }
+
+        /* Search */
+        .search-hero input { width: 100%; background: var(--bg-card); border: 1px solid var(--border); padding: 16px 16px 16px 50px; border-radius: 14px; color: white; font-size: 16px; margin: 20px 0; }
+        .search-hero { position: relative; }
+        .search-hero i { position: absolute; left: 20px; top: 38px; color: var(--text-muted); }
+
+        /* Loader */
+        #loader { position: fixed; inset:0; background: var(--bg-body); z-index: 999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        .spinner { width: 50px; height: 50px; border: 4px solid #333; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <!-- LOADER -->
+    <div id="loader">
+        <div class="spinner"></div>
+        <h3 style="letter-spacing:1px;">AL RAHIM MOTORS</h3>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="container flex-between">
+            <div class="brand"><i class="fas fa-steering-wheel" style="color:var(--primary)"></i> Al Rahim <span>Motors</span></div>
+            <nav class="pc-nav">
+                <a onclick="goHome()" class="active">Home</a>
+                <a onclick="openMyAds()">My Ads</a>
+                <a onclick="adminLogin()">Admin</a>
+                <a onclick="openSell()" class="btn-sell-pc"><i class="fas fa-plus"></i> Sell Car</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HOME VIEW -->
+    <div id="home-view">
+        <div class="container">
+            <!-- Search -->
+            <div class="search-hero">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInp" placeholder="Search for Toyota, Honda, Civic..." onkeyup="filterCars()">
+            </div>
+
+            <!-- MANAGEMENT TOOLS -->
+            <div class="tools-section">
+                <div class="section-label">Management Tools</div>
+                <div class="tools-scroll">
+                    <div class="tool-card" onclick="openPurchaser()">
+                        <div class="tool-icon"><i class="fas fa-users"></i></div>
+                        <div class="tool-name">Purchaser List</div>
+                    </div>
+                    <div class="tool-card" onclick="openLeasing()">
+                        <div class="tool-icon"><i class="fas fa-file-contract"></i></div>
+                        <div class="tool-name">Leasing Record</div>
+                    </div>
+                    <div class="tool-card" onclick="openInvestor()">
+                        <div class="tool-icon"><i class="fas fa-chart-line"></i></div>
+                        <div class="tool-name">Investor List</div>
+                    </div>
+                    <!-- NEW BROKER OPTION -->
+                    <div class="tool-card" onclick="openBroker()">
+                        <div class="tool-icon"><i class="fas fa-handshake"></i></div>
+                        <div class="tool-name">Broker List</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BRANDS -->
+            <div class="brands-scroll">
+                <div class="brand-pill" onclick="filterByBrand('Toyota')"><img src="https://img.icons8.com/color/96/toyota.png" class="brand-logo"><span class="brand-name">Toyota</span></div>
+                <div class="brand-pill" onclick="filterByBrand('Honda')"><img src="https://img.icons8.com/color/96/honda.png" class="brand-logo"><span class="brand-name">Honda</span></div>
+                <div class="brand-pill" onclick="filterByBrand('Suzuki')"><img src="https://img.icons8.com/color/96/suzuki.png" class="brand-logo"><span class="brand-name">Suzuki</span></div>
+                <div class="brand-pill" onclick="filterByBrand('Changan')"><img src="https://img.icons8.com/color/96/changan-automobile.png" class="brand-logo"><span class="brand-name">Changan</span></div>
+                <div class="brand-pill" onclick="filterByBrand('Kia')"><img src="https://img.icons8.com/color/96/kia.png" class="brand-logo"><span class="brand-name">KIA</span></div>
+                <div class="brand-pill" onclick="filterByBrand('Hyundai')"><img src="https://img.icons8.com/color/96/hyundai.png" class="brand-logo"><span class="brand-name">Hyundai</span></div>
+                <div class="brand-pill" onclick="filterByBrand('MG')"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/MG_Motor_logo.svg/1024px-MG_Motor_logo.svg.png" class="brand-logo"><span class="brand-name">MG</span></div>
+                <div class="brand-pill" onclick="filterByBrand('')"><div style="font-weight:800; color:var(--primary)">ALL</div><span class="brand-name">View All</span></div>
+            </div>
+
+            <h2 style="font-size: 20px; margin: 25px 0 15px 0;">Latest Arrivals</h2>
+            <div id="car-grid" class="grid-responsive">Loading Inventory...</div>
+        </div>
+    </div>
+
+    <!-- === MODALS === -->
+
+    <!-- PURCHASER -->
+    <div id="purchaser-modal" class="modal">
+        <div class="modal-box">
+            <div class="modal-header"><span class="modal-title">Purchaser List</span><button class="close-btn" onclick="closeModals()"><i class="fas fa-times"></i></button></div>
+            <div class="form-content">
+                <div class="grid-responsive" style="grid-template-columns: 1fr 1fr; gap:10px;"><div class="input-group"><label class="lbl">Client Name</label><input type="text" id="purName" class="inp" placeholder="Full Name"></div><div class="input-group"><label class="lbl">Phone</label><input type="tel" id="purPhone" class="inp" placeholder="0300..."></div></div>
+                <div class="input-group"><label class="lbl">Date of Visit</label><input type="date" id="purDate" class="inp"></div>
+                <div class="input-group"><label class="lbl">Requirements / Note</label><textarea id="purNote" class="inp" rows="2" placeholder="e.g. Looking for White Corolla 2020"></textarea></div>
+                <button class="btn-submit" onclick="savePurchaser()">Save Record</button>
+                <div class="record-list" id="purchaser-list">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEASING -->
+    <div id="leasing-modal" class="modal">
+        <div class="modal-box">
+            <div class="modal-header"><span class="modal-title">Leasing Record</span><button class="close-btn" onclick="closeModals()"><i class="fas fa-times"></i></button></div>
+            <div class="form-content">
+                <div class="grid-responsive" style="grid-template-columns: 1fr 1fr; gap:10px;"><div class="input-group"><label class="lbl">Buyer Name</label><input type="text" id="leaseName" class="inp" placeholder="Name"></div><div class="input-group"><label class="lbl">Phone</label><input type="tel" id="leasePhone" class="inp" placeholder="0300..."></div></div>
+                <div class="grid-responsive" style="grid-template-columns: 1fr 1fr; gap:10px;"><div class="input-group"><label class="lbl">Car Name</label><input type="text" id="leaseCar" class="inp" placeholder="Civic X"></div><div class="input-group"><label class="lbl">Car Number</label><input type="text" id="leaseNo" class="inp" placeholder="LEA-123"></div></div>
+                <div class="input-group"><label class="lbl">Note</label><textarea id="leaseNote" class="inp" rows="3" placeholder="Advance paid..."></textarea></div>
+                <button class="btn-submit" onclick="saveLeasing()">Save Record</button>
+                <div class="record-list" id="leasing-list">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INVESTOR -->
+    <div id="investor-modal" class="modal">
+        <div class="modal-box">
+            <div class="modal-header"><span class="modal-title">Investor List</span><button class="close-btn" onclick="closeModals()"><i class="fas fa-times"></i></button></div>
+            <div class="form-content">
+                <div class="grid-responsive" style="grid-template-columns: 1fr 1fr; gap:10px;"><div class="input-group"><label class="lbl">Investor Name</label><input type="text" id="invName" class="inp" placeholder="Name"></div><div class="input-group"><label class="lbl">Phone</label><input type="tel" id="invPhone" class="inp" placeholder="0300..."></div></div>
+                <div class="input-group"><label class="lbl">Investment Car</label><input type="text" id="invCar" class="inp" placeholder="e.g. Fortuner"></div>
+                <div class="input-group"><label class="lbl">Note</label><textarea id="invNote" class="inp" rows="3" placeholder="Amount details..."></textarea></div>
+                <button class="btn-submit" onclick="saveInvestor()">Save Record</button>
+                <div class="record-list" id="investor-list">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BROKER (NEW) -->
+    <div id="broker-modal" class="modal">
+        <div class="modal-box">
+            <div class="modal-header"><span class="modal-title">Broker List</span><button class="close-btn" onclick="closeModals()"><i class="fas fa-times"></i></button></div>
+            <div class="form-content">
+                <div class="input-group"><label class="lbl">Broker Name</label><input type="text" id="broName" class="inp" placeholder="Name"></div>
+                <div class="input-group"><label class="lbl">Phone</label><input type="tel" id="broPhone" class="inp" placeholder="0300..."></div>
+                <button class="btn-submit" onclick="saveBroker()">Save Record</button>
+                <div class="record-list" id="broker-list">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SELL / EDIT CAR MODAL -->
+    <div id="sell-modal" class="modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title" id="form-title">Sell Your Car</span>
+                <button class="close-btn" onclick="closeModals()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="form-content">
+                <div class="input-group">
+                    <label class="lbl">Photos</label>
+                    <div class="upload-zone" id="preview-area">
+                        <div class="upload-trigger" onclick="document.getElementById('fileInp').click()">
+                            <i class="fas fa-camera"></i><span style="font-size:10px;">Add</span>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInp" hidden multiple accept="image/*" onchange="handleFileSelect(this)">
+                </div>
+                <div class="input-group"><label class="lbl">Car Name</label><input type="text" id="inpMake" class="inp" placeholder="Toyota Corolla"></div>
+                <div class="grid-responsive" style="grid-template-columns:1fr 1fr; gap:10px;">
+                    <div class="input-group"><label class="lbl">Price</label><input type="number" id="inpPrice" class="inp"></div>
+                    <div class="input-group"><label class="lbl">Year</label><input type="number" id="inpYear" class="inp"></div>
+                </div>
+                <div class="grid-responsive" style="grid-template-columns:1fr 1fr; gap:10px;">
+                    <div class="input-group"><label class="lbl">KM</label><input type="number" id="inpKm" class="inp"></div>
+                    <div class="input-group"><label class="lbl">Cond</label><select id="inpCond" class="inp"><option>Used</option><option>New</option></select></div>
+                </div>
+                <div class="input-group"><label class="lbl">Description</label><textarea id="inpDesc" class="inp" rows="3"></textarea></div>
+                <div class="input-group"><label class="lbl">Name</label><input type="text" id="inpName" class="inp"></div>
+                <div class="input-group"><label class="lbl">Phone</label><input type="tel" id="inpPhone" class="inp"></div>
+                <button class="btn-submit" id="btn-post-ad" onclick="submitAd()">Post Ad</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MY ADS MODAL -->
+    <div id="my-ads-modal" class="modal">
+        <div class="modal-box">
+            <div class="modal-header"><span class="modal-title">My Ads</span><button class="close-btn" onclick="closeModals()"><i class="fas fa-times"></i></button></div>
+            <div class="form-content"><div id="my-ads-grid" class="grid-responsive"></div></div>
+        </div>
+    </div>
+
+    <!-- DETAIL MODAL -->
+    <div id="detail-modal" class="modal">
+        <div class="modal-box detail-box">
+            <div class="modal-header">
+                <span class="modal-title">Details</span>
+                <button class="close-btn" onclick="closeModals()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="gallery-container" id="slider">
+                <div class="gal-nav"><button class="gal-btn" onclick="moveSlide(-1)">&#10094;</button><button class="gal-btn" onclick="moveSlide(1)">&#10095;</button></div>
+            </div>
+            <div class="dt-content">
+                <div class="dt-header">
+                    <div><div class="dt-make" id="dt-title">Car</div><div style="color:#888;">Punjab, Pakistan</div></div>
+                    <div class="dt-price" id="dt-price">PKR 0</div>
+                </div>
+                <div class="spec-grid">
+                    <div class="spec-card"><span class="spec-lbl">Year</span><div class="spec-val" id="dt-year">2023</div></div>
+                    <div class="spec-card"><span class="spec-lbl">KM</span><div class="spec-val" id="dt-km">0</div></div>
+                    <div class="spec-card"><span class="spec-lbl">Cond</span><div class="spec-val" id="dt-cond">Used</div></div>
+                    <div class="spec-card"><span class="spec-lbl">Seller</span><div class="spec-val" id="dt-owner">Name</div></div>
+                </div>
+                <h3>Description</h3>
+                <div id="dt-desc" style="color:#ccc; margin-bottom:20px; line-height:1.6">...</div>
+                <div class="action-bar">
+                    <a id="btnCall" class="btn-contact call"><i class="fas fa-phone"></i> Call Now</a>
+                    <a id="btnSms" class="btn-contact sms"><i class="fas fa-comment-dots"></i> SMS</a>
+                    <button id="btnShare" onclick="shareCurrentAd()" class="btn-contact share"><i class="fas fa-share-alt"></i> Share</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN MODAL -->
+    <div id="admin-modal" class="modal">
+        <div class="modal-box admin-box-pc">
+            <div class="modal-header">
+                <span class="modal-title" style="color:var(--danger)">Admin Dashboard</span>
+                <button class="close-btn" onclick="closeModals()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="form-content">
+                <div class="admin-stats">
+                    <div class="stat-card"><div class="stat-val" id="adm-total">0</div><div class="stat-lbl">Total Cars</div></div>
+                    <div class="stat-card"><div class="stat-val" id="adm-active" style="color:var(--success)">0</div><div class="stat-lbl">Active Ads</div></div>
+                    <div class="stat-card"><div class="stat-val" id="adm-value" style="color:var(--primary)">0</div><div class="stat-lbl">Inv. Value (M)</div></div>
+                </div>
+                <div class="input-group"><input type="text" id="admSearch" class="inp" placeholder="Search Inventory..." onkeyup="filterAdmin()"></div>
+                <div id="admin-list">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MOBILE NAV -->
+    <div class="mobile-nav">
+        <button class="nav-icon active" onclick="goHome()"><i class="fas fa-home"></i> Home</button>
+        <button class="nav-icon" onclick="openMyAds()"><i class="far fa-heart"></i> My Ads</button>
+        <button class="nav-icon" onclick="openSell()"><div class="nav-fab"><i class="fas fa-plus"></i></div> Sell</button>
+        <button class="nav-icon" onclick="openPurchaser()"><i class="fas fa-users"></i> Clients</button>
+        <button class="nav-icon" onclick="adminLogin()"><i class="far fa-user"></i> Admin</button>
+    </div>
+
+    <!-- FIREBASE & LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB0kF8KCc4EgtjYTzSYHuzGsujoc2qHFx4",
+            authDomain: "al-rahim-motors.firebaseapp.com",
+            projectId: "al-rahim-motors",
+            storageBucket: "al-rahim-motors.appspot.com",
+            messagingSenderId: "123456789", 
+            appId: "1:123456789:web:abcdef" 
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        const carCol = collection(db, "cars");
+        const purCol = collection(db, "purchasers");
+        const leaseCol = collection(db, "leasing");
+        const investCol = collection(db, "investors");
+        const broCol = collection(db, "brokers");
+
+        let carsData = [];
+        let uploadImages = [];
+        let currentSlide = 0;
+        let myPostedAds = JSON.parse(localStorage.getItem("my_posted_ads") || "[]");
+        let isEditing = false;
+        let editId = null;
+        let currentCarId = null;
+
+        // --- REALTIME DATA ---
+        onSnapshot(query(carCol, orderBy("timestamp", "desc")), (snapshot) => {
+            document.getElementById('loader').style.display = 'none';
+            carsData = [];
+            snapshot.forEach((doc) => carsData.push({ id: doc.id, ...doc.data() }));
+            renderHome(carsData);
+            updateAdminStats();
+            if(document.getElementById('admin-modal').classList.contains('active')) renderAdmin();
+        });
+
+        // --- SUBMIT CAR AD ---
+        window.submitAd = async function() {
+            const make = document.getElementById('inpMake').value;
+            const price = document.getElementById('inpPrice').value;
+            const phone = document.getElementById('inpPhone').value;
+            if(!make || !price || !phone || uploadImages.length === 0) return alert("Fill details & Add Photo");
+
+            const btn = document.getElementById('btn-post-ad'); 
+            btn.innerHTML = isEditing ? "Updating..." : "Posting..."; 
+            btn.disabled = true;
+
+            const carData = {
+                make, price, phone,
+                year: document.getElementById('inpYear').value,
+                km: document.getElementById('inpKm').value,
+                cond: document.getElementById('inpCond').value,
+                desc: document.getElementById('inpDesc').value,
+                owner: document.getElementById('inpName').value,
+                imgs: uploadImages,
+                active: true,
+                timestamp: Date.now()
+            };
+
+            try {
+                if (isEditing) {
+                    await updateDoc(doc(db, "cars", editId), carData);
+                    alert("Updated!");
+                } else {
+                    const docRef = await addDoc(carCol, carData);
+                    myPostedAds.push(docRef.id);
+                    localStorage.setItem("my_posted_ads", JSON.stringify(myPostedAds));
+                    alert("Posted!");
+                }
+                closeModals();
+            } catch(e) { console.error(e); alert("Failed."); }
+            btn.innerHTML = "Post Ad"; btn.disabled = false;
+        }
+
+        window.editAd = function(id) {
+            const car = carsData.find(c => c.id === id);
+            if (!car) return;
+            document.getElementById('sell-modal').classList.add('active');
+            isEditing = true; editId = id;
+            document.getElementById('form-title').innerText = "Edit Car Details";
+            document.getElementById('btn-post-ad').innerText = "Update Ad";
+            document.getElementById('inpMake').value = car.make;
+            document.getElementById('inpPrice').value = car.price;
+            document.getElementById('inpYear').value = car.year;
+            document.getElementById('inpKm').value = car.km;
+            document.getElementById('inpCond').value = car.cond;
+            document.getElementById('inpDesc').value = car.desc;
+            document.getElementById('inpName').value = car.owner;
+            document.getElementById('inpPhone').value = car.phone;
+            uploadImages = car.imgs || [];
+            const area = document.getElementById('preview-area');
+            area.innerHTML = `<div class="upload-trigger" onclick="document.getElementById('fileInp').click()"><i class="fas fa-camera"></i><span style="font-size:10px;">Add</span></div>`;
+            uploadImages.forEach(src => area.innerHTML += `<img src="${src}" class="thumb-preview">`);
+        }
+
+        window.openSell = function() {
+            isEditing = false; editId = null;
+            document.getElementById('form-title').innerText = "Sell Your Car";
+            document.getElementById('btn-post-ad').innerText = "Post Ad";
+            uploadImages = [];
+            document.querySelectorAll('.inp').forEach(i => i.value = '');
+            document.getElementById('preview-area').innerHTML = `<div class="upload-trigger" onclick="document.getElementById('fileInp').click()"><i class="fas fa-camera"></i><span style="font-size:10px;">Add</span></div>`;
+            document.getElementById('sell-modal').classList.add('active');
+        }
+
+        // --- MANAGEMENT RECORDS ---
+        window.savePurchaser = async function() { await addRec(purCol, { name: v('purName'), phone: v('purPhone'), date: v('purDate'), note: v('purNote'), timestamp: Date.now() }); vSet('purName',''); }
+        window.saveLeasing = async function() { await addRec(leaseCol, { name: v('leaseName'), phone: v('leasePhone'), car: v('leaseCar'), no: v('leaseNo'), note: v('leaseNote'), timestamp: Date.now() }); vSet('leaseName',''); }
+        window.saveInvestor = async function() { await addRec(investCol, { name: v('invName'), phone: v('invPhone'), car: v('invCar'), note: v('invNote'), timestamp: Date.now() }); vSet('invName',''); }
+        window.saveBroker = async function() { await addRec(broCol, { name: v('broName'), phone: v('broPhone'), timestamp: Date.now() }); vSet('broName',''); vSet('broPhone',''); }
+
+        async function addRec(col, data) { if(!data.name) return alert("Enter Name"); await addDoc(col, data); alert("Saved!"); }
+        function v(id) { return document.getElementById(id).value; }
+        function vSet(id, val) { document.getElementById(id).value = val; }
+
+        onSnapshot(query(purCol, orderBy("timestamp", "desc")), s => renderRecList(s, 'purchaser-list', 'purchasers', 'visit'));
+        onSnapshot(query(leaseCol, orderBy("timestamp", "desc")), s => renderRecList(s, 'leasing-list', 'leasing', 'car'));
+        onSnapshot(query(investCol, orderBy("timestamp", "desc")), s => renderRecList(s, 'investor-list', 'investors', 'car'));
+        onSnapshot(query(broCol, orderBy("timestamp", "desc")), s => renderRecList(s, 'broker-list', 'brokers', 'broker'));
+
+        function renderRecList(snap, elId, colName, subType) {
+            const list = document.getElementById(elId); list.innerHTML = "";
+            if(snap.empty) { list.innerHTML = "<div class='no-records'>No records found.</div>"; return; }
+            
+            snap.forEach(d => {
+                const data = d.data();
+                let displayDate = data.date ? formatDate(data.date) : formatDate(new Date(data.timestamp));
+                let badgeText = subType === 'visit' ? displayDate : (subType === 'broker' ? 'Broker' : (data.car || "General"));
+                let badgeIcon = subType === 'visit' ? "fa-calendar-alt" : (subType === 'broker' ? "fa-handshake" : "fa-car");
+
+                list.innerHTML += `
+                    <div class="record-card">
+                        <div class="rec-header">
+                            <div class="rec-name"><i class="fas fa-user-circle"></i> ${data.name}</div>
+                            <div class="rec-date-badge"><i class="fas ${badgeIcon}"></i> ${badgeText}</div>
+                        </div>
+                        <a href="tel:${data.phone}" class="phone-link"><i class="fas fa-phone-alt"></i> ${data.phone}</a>
+                        ${data.no ? `<div class="rec-meta"><i class="fas fa-hashtag"></i> ${data.no}</div>` : ''}
+                        <div class="rec-note-box">${data.note || 'No notes added.'}</div>
+                        <button class="rec-delete" onclick="deleteDoc(doc(db,'${colName}','${d.id}'))"><i class="fas fa-trash"></i> Delete</button>
+                    </div>
+                `;
+            });
+        }
+
+        function formatDate(dateInput) {
+            const date = new Date(dateInput);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
+        }
+
+        // --- RENDER HOME ---
+        window.renderHome = function(data) {
+            const grid = document.getElementById('car-grid');
+            const active = data.filter(c => c.active);
+            grid.innerHTML = active.length ? "" : "No cars found.";
+            active.forEach(car => grid.innerHTML += createCard(car, false));
+        }
+
+        window.openMyAds = function() {
+            const grid = document.getElementById('my-ads-grid');
+            document.getElementById('my-ads-modal').classList.add('active');
+            const myCars = carsData.filter(c => myPostedAds.includes(c.id));
+            grid.innerHTML = myCars.length ? "" : "<div style='color:#777;'>No ads posted by you.</div>";
+            myCars.forEach(car => grid.innerHTML += createCard(car, true));
+        }
+
+        function createCard(car, isMyAd) {
+            let img = car.imgs ? car.imgs[0] : '';
+            let buttons = isMyAd ? `<div class="card-actions"><button class="btn-mini btn-edit" onclick="event.stopPropagation(); editAd('${car.id}')"><i class="fas fa-pencil-alt"></i></button><button class="btn-mini btn-del" onclick="event.stopPropagation(); deleteDoc(doc(db, 'cars', '${car.id}'))"><i class="fas fa-trash"></i></button></div>` : '';
+            return `
+                <div class="car-card" onclick="openDetail('${car.id}')">
+                    <div class="card-img-box"><div class="status-badge">Available</div><img src="${img}">${buttons}</div>
+                    <div class="card-content">
+                        <div class="price">PKR ${Number(car.price).toLocaleString()}</div>
+                        <div class="title">${car.make}</div>
+                        <div class="features"><div><i class="fas fa-calendar"></i> ${car.year}</div><div><i class="fas fa-road"></i> ${car.km}</div></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- ADMIN ---
+        window.renderAdmin = function(filter = "") {
+            const list = document.getElementById('admin-list'); list.innerHTML = "";
+            let filteredData = carsData.filter(c => c.make.toLowerCase().includes(filter.toLowerCase()));
+            filteredData.forEach(c => {
+                let img = c.imgs && c.imgs[0] ? c.imgs[0] : '';
+                list.innerHTML += `<div class="admin-table-row"><div style="display:flex; align-items:center; gap:10px;"><img src="${img}" style="width:50px; height:50px; border-radius:6px; object-fit:cover;"><div><div style="font-weight:bold; font-size:14px; color:white;">${c.make}</div><div style="font-size:12px; color:var(--text-muted)">PKR ${Number(c.price).toLocaleString()}</div></div></div><div class="admin-actions"><button class="btn-admin" style="background:${c.active?'#333':'var(--success)'}" onclick="toggleActive('${c.id}', ${c.active})">${c.active?'Hide':'Show'}</button><button class="btn-admin" style="background:var(--primary)" onclick="editAd('${c.id}')">Edit</button><button class="btn-admin" style="background:var(--danger)" onclick="deleteDoc(doc(db,'cars','${c.id}'))">Del</button></div></div>`;
+            });
+        }
+        function updateAdminStats() {
+            document.getElementById('adm-total').innerText = carsData.length;
+            document.getElementById('adm-active').innerText = carsData.filter(c => c.active).length;
+            document.getElementById('adm-value').innerText = (carsData.reduce((acc, c) => acc + Number(c.price), 0) / 1000000).toFixed(1) + "M";
+        }
+        window.filterAdmin = () => renderAdmin(document.getElementById('admSearch').value);
+
+        // --- DETAILS & SHARE ---
+        window.openDetail = function(id) {
+            currentCarId = id;
+            const car = carsData.find(c => c.id === id);
+            document.getElementById('detail-modal').classList.add('active');
+            document.getElementById('dt-price').innerText = "PKR " + Number(car.price).toLocaleString();
+            document.getElementById('dt-title').innerText = car.make;
+            document.getElementById('dt-year').innerText = car.year;
+            document.getElementById('dt-km').innerText = car.km;
+            document.getElementById('dt-cond').innerText = car.cond;
+            document.getElementById('dt-owner').innerText = car.owner;
+            document.getElementById('dt-desc').innerText = car.desc;
+            document.getElementById('btnCall').href = "tel:" + car.phone;
+            document.getElementById('btnSms').href = `sms:${car.phone}`;
+            const slider = document.getElementById('slider');
+            slider.querySelectorAll('.gal-img').forEach(i => i.remove());
+            car.imgs.forEach((src,i) => { let img = document.createElement('img'); img.src = src; img.className = i===0?"gal-img active":"gal-img"; slider.prepend(img); });
+            currentSlide = 0;
+        }
+
+        // SHARE IMAGE LOGIC
+        function dataURLtoFile(dataurl, filename) {
+            var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1],
+                bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+            while(n--){ u8arr[n] = bstr.charCodeAt(n); }
+            return new File([u8arr], filename, {type:mime});
+        }
+
+        window.shareCurrentAd = async function() {
+            const car = carsData.find(c => c.id === currentCarId);
+            const text = `Check this out on Al Rahim Motors:\n\n*${car.make}*\nPrice: PKR ${Number(car.price).toLocaleString()}\nYear: ${car.year}\nKM: ${car.km}\n\nDetails: ${car.desc}`;
+
+            try {
+                if (navigator.share && car.imgs.length > 0 && navigator.canShare) {
+                    const file = dataURLtoFile(car.imgs[0], "car_image.jpg");
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: car.make,
+                            text: text
+                        });
+                    } else { throw new Error("File sharing not supported"); }
+                } else {
+                    if (navigator.share) {
+                        await navigator.share({ title: car.make, text: text });
+                    } else {
+                        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+                    }
+                }
+            } catch (err) {
+                console.log("Fallback share", err);
+                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+            }
+        }
+
+        // Utils
+        window.handleFileSelect = function(input) {
+            Array.from(input.files).forEach(file => {
+                const r = new FileReader();
+                r.onload = e => {
+                    const i = new Image(); i.src = e.target.result;
+                    i.onload = () => {
+                        const c = document.createElement('canvas'); const x = c.getContext('2d');
+                        const s = 800/i.width; c.width=800; c.height=i.height*s; x.drawImage(i,0,0,c.width,c.height);
+                        const d = c.toDataURL('image/jpeg', 0.6);
+                        uploadImages.push(d);
+                        document.getElementById('preview-area').innerHTML += `<img src="${d}" class="thumb-preview">`;
+                    }
+                }; r.readAsDataURL(file);
+            });
+        }
+        window.moveSlide = n => { const s = document.querySelectorAll('.gal-img'); s[currentSlide].classList.remove('active'); currentSlide = (currentSlide+n+s.length)%s.length; s[currentSlide].classList.add('active'); }
+        window.filterCars = () => { const q = document.getElementById('searchInp').value.toLowerCase(); renderHome(carsData.filter(c => c.make.toLowerCase().includes(q))); }
+        window.filterByBrand = (b) => { document.getElementById('searchInp').value=b; filterCars(); }
+        window.closeModals = () => document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+        
+        window.openPurchaser = () => document.getElementById('purchaser-modal').classList.add('active');
+        window.openLeasing = () => document.getElementById('leasing-modal').classList.add('active');
+        window.openInvestor = () => document.getElementById('investor-modal').classList.add('active');
+        window.openBroker = () => document.getElementById('broker-modal').classList.add('active');
+
+        window.adminLogin = () => { if(prompt("Pass:")==="Azan@0305") { document.getElementById('admin-modal').classList.add('active'); renderAdmin(); } }
+        window.toggleActive = async (id, s) => { await updateDoc(doc(db,"cars",id), {active:!s}); }
+        window.deleteDoc = deleteDoc; window.doc = doc; window.db = db;
+    </script>
+</body>
+</html>
+
+On Tue, 2 Dec 2025, 2:37 pm internet info, <internetinfo70@gmail.com> wrote:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Al Rahim Motors | Management System</title>
     
     <!-- Fonts & Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -292,10 +1052,10 @@
                 <div class="brand-pill" onclick="filterByBrand('Toyota')"><img src="https://img.icons8.com/color/96/toyota.png" class="brand-logo"><span class="brand-name">Toyota</span></div>
                 <div class="brand-pill" onclick="filterByBrand('Honda')"><img src="https://img.icons8.com/color/96/honda.png" class="brand-logo"><span class="brand-name">Honda</span></div>
                 <div class="brand-pill" onclick="filterByBrand('Suzuki')"><img src="https://img.icons8.com/color/96/suzuki.png" class="brand-logo"><span class="brand-name">Suzuki</span></div>
-                <div class="brand-pill" onclick="filterByBrand('Changan')"><img src="https://static.cdnlogo.com/logos/c/95/changan-automobile_800.png" class="brand-logo"><span class="brand-name">Changan</span></div>
+                <div class="brand-pill" onclick="filterByBrand('Changan')"><img src="https://img.icons8.com/color/96/changan-automobile.png" class="brand-logo"><span class="brand-name">Changan</span></div>
                 <div class="brand-pill" onclick="filterByBrand('Kia')"><img src="https://img.icons8.com/color/96/kia.png" class="brand-logo"><span class="brand-name">KIA</span></div>
                 <div class="brand-pill" onclick="filterByBrand('Hyundai')"><img src="https://img.icons8.com/color/96/hyundai.png" class="brand-logo"><span class="brand-name">Hyundai</span></div>
-                <div class="brand-pill" onclick="filterByBrand('Haval')"><img src="https://seeklogo.com/vector-logo/486149/haval" class="brand-logo"><span class="brand-name">MG</span></div>
+                <div class="brand-pill" onclick="filterByBrand('MG')"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/MG_Motor_logo.svg/1024px-MG_Motor_logo.svg.png" class="brand-logo"><span class="brand-name">MG</span></div>
                 <div class="brand-pill" onclick="filterByBrand('')"><div style="font-weight:800; color:var(--primary)">ALL</div><span class="brand-name">View All</span></div>
             </div>
 
